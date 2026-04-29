@@ -1,0 +1,76 @@
+############################ 1 ############################
+
+
+
+# PROCESS TYPE
+ttk.Label(self.form_frame, text="Process Type*", font=label_font).grid(row=2, column=0, sticky='w', padx=5, pady=5)
+self.process_type_cb = ttk.Combobox(self.form_frame, values=self.process_types, state='readonly', width=30)
+self.process_type_cb.grid(row=3, column=0, padx=5)
+self.process_type_cb.set('Select Process')  # Initially empty
+self.process_type_cb.bind("<<ComboboxSelected>>", self.toggle_process_details)
+
+
+############################ 2 ############################
+
+
+def update_user_names(self, event):
+    selected_lead = self.group_lead_cb.get()
+    if selected_lead != "Select Lead":
+        try:
+            workbook = load_workbook(self.input_excel_path)
+            user_list_sheet = workbook['User_List']
+            users = set()
+            for row in range(2, user_list_sheet.max_row + 1):
+                lead_cell = user_list_sheet.cell(row=row, column=1).value
+                name_cell = user_list_sheet.cell(row=row, column=2).value
+                if lead_cell == selected_lead and name_cell is not None:
+                    users.add(name_cell)
+            users = sorted(users)
+            self.user_name_cb['values'] = users
+            if users:
+                self.user_name_cb.current(0)
+                self.on_user_name_selected(None)
+                self.attendance_cb.set("Present")
+            else:
+                if self.in_time_label:
+                    self.in_time_label.grid_forget()
+                if self.in_time_value_label:
+                    self.in_time_value_label.grid_forget()
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to load user names:\n{e}")
+            self.user_name_cb['values'] = []
+            self.user_name_cb.set('Select Team Member')
+            self.project_name_cb['values'] = []
+            self.project_name_cb.set('Select Project')
+            if self.in_time_label:
+                self.in_time_label.grid_forget()
+            if self.in_time_value_label:
+                self.in_time_value_label.grid_forget()
+
+    # Set Process Type to "PR" only after a Lead is selected
+    self.process_type_cb.set('PR')
+    self.toggle_process_details(None)
+
+############################ 3 ############################
+
+def reset_form(self):
+    self.group_lead_cb.set('Select Lead')
+    self.user_name_cb.set('Select Team Member')
+    self.project_name_cb.set('Select Project')
+    self.process_type_cb.set('')  # Reset to empty
+    self.count_entry.config(state='normal')
+    self.count_entry.delete(0, tk.END)
+    self.attendance_cb.set('Select Attendance')
+    self.leave_type_combobox.set("Select Leave Type")
+    self.type_combobox.set("Select Half Day Status")
+    self.permission_details_entry.delete(0, tk.END)
+    self.other_process_details_entry.delete(0, tk.END)
+    self.comments_entry.delete(0, tk.END)
+    if self.in_time_label:
+        self.in_time_label.grid_forget()
+    if self.in_time_value_label:
+        self.in_time_value_label.grid_forget()
+        self.in_time_value_label.config(text="")
+    self.in_time = None
+    self.toggle_leave_options(None)
+    self.toggle_process_details(None)
